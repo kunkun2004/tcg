@@ -1,6 +1,4 @@
-#include <iostream>
-#include <sstream>
-#include <vector>
+#include <bits/stdc++.h>
 
 bool is_integer(const std::string &s) {
     std::istringstream iss(s);

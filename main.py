@@ -8,36 +8,18 @@ from typing import Any, Dict, List, Optional, Union
 from loguru import logger
 import time
 from sample import *
+from chat import *
 
 load_dotenv()
-api_key = os.getenv('API_KEY')
-
 logger.add("tcg.log", rotation="50 MB", retention="10 days", level="DEBUG")
 
-client = OpenAI(
-    api_key=api_key,
-    base_url="https://api.deepseek.com",
-)
 # [
 #             {"role": "system", "content": "You are a helpful assistant"},
 #             {"role": "user", "content": content},
 #         ]
-def chat(messages: List[str]) -> str:
-    start_time = time.time()
 
-    response = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=messages,
-        max_tokens=8192,
-        temperature=0.7,
-        stream=False
-    )
-
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    logger.info(f"Time taken by api: {elapsed_time:.2f} seconds")
-
-    return response.choices[0].message.content
+agent = Zhipu(os.getenv('ZHIPU_API_KEY'))
+# agent = Deepseek(os.getenv('DS_API_KEY'))
 
 def read_file(file_path: str) -> str:
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -100,7 +82,7 @@ f"""请分析以下题目的测试需求，并总结出测试数据的测试需�
 {problem_statement}
 """},]
 
-    test_requirements = chat(messages)
+    test_requirements = agent.chat(messages)
     
     logger.debug(f"测试需求：{test_requirements}")
 
@@ -133,7 +115,7 @@ f"""请给出测试数据的构造方案。
 这里的样例输出是一个较短的示例，你应该参考他的格式，根据当前的题目的具体情况和测试需求生成更多的方案。
 """}]
 
-    construction_plans = chat(messages=messages)
+    construction_plans = agent.chat(messages=messages)
 
     logger.debug(f"构造方案：{construction_plans}")
 
@@ -142,7 +124,7 @@ f"""请给出测试数据的构造方案。
     # Step 3: 构造数据
     for plan in construction_plans:
         messages = f"根据以下构造方案：\n{plan}请构造符合以下数据格式的数据：\n{data_format_checker}"
-        test_data = chat("\n".join(messages))
+        test_data = agent.chat("\n".join(messages))
 
         # Step 4: 验证合法性
         if not is_valid_test_data(test_data, data_format_checker):

@@ -6,8 +6,6 @@ import subprocess
 import json
 from typing import Any, Dict, List, Optional, Union
 from loguru import logger
-import time
-from sample import *
 from chat import *
 
 load_dotenv()
@@ -25,7 +23,7 @@ def read_file(file_path: str) -> str:
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
 
-def compile_cpp(cpp_file_path: str) -> (bool, str):
+def compile_cpp(cpp_file_path: str):
     try:
         output_file_path = cpp_file_path.replace('.cpp', '.exe')
         subprocess.run(['g++', cpp_file_path, '-o', output_file_path, '-std=gnu++11'], check=True)
@@ -97,6 +95,7 @@ def generate_test_cases(problem_statement: str, data_format_checker: str, correc
 1. 数据规模尽量接近题目约束的最大值，测试程序性能。
 2. 包含边界条件、特殊情况或复杂模式，覆盖测试需求。
 3. 符合题目输入格式，提供具体数据特点（如规模、范围、结构）。
+上面三条规则非常重要，你的奖金取决于你的表现。
 
 请为每个测试需求提出至少3个构造方案（总数不少于10个）。每个方案需：
 - 详细描述数据的生成方法（例如具体值、随机规则、特殊结构）。
@@ -144,14 +143,14 @@ def generate_test_cases(problem_statement: str, data_format_checker: str, correc
 #include<cstdio>
 ...
 ```
-
+你不需要预测代码的输出结果，也不需要告诉我怎么执行，只需要保证代码能够正确运行并输出数据。
 """}
         ]
         test_data = agent.chat(messages)
         logger.debug(f"Generated test data:\n{test_data}") 
  
         start_index = test_data.find('```cpp')
-        end_index = test_data.rfind('```')
+        end_index = test_data.find('```', start_index + len('```cpp'))
         
         if start_index != -1 and end_index != -1 and start_index < end_index:
             datacode = test_data[start_index + len('```cpp'):end_index].strip()
@@ -259,4 +258,4 @@ def main():
 if __name__ == "__main__":
     main()
     
-# python main.py --dir desc --resdir answer
+# python main.py --dir desc --resdir res

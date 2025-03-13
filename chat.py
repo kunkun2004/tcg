@@ -44,7 +44,7 @@ class Zhipu(Agent):
         start_time = time.time()
         try:
             response = self.client.chat.completions.create(
-                model="glm-4-air",
+                model="glm-4-plus",
                 messages=messages,
             )
             end_time = time.time()

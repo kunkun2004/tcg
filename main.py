@@ -25,21 +25,22 @@ def read_file(file_path: str) -> str:
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
 
-def compile_cpp(cpp_file_path: str) -> bool:
+def compile_cpp(cpp_file_path: str) -> (bool, str):
     try:
         output_file_path = cpp_file_path.replace('.cpp', '.exe')
         subprocess.run(['g++', cpp_file_path, '-o', output_file_path, '-std=gnu++11'], check=True)
-        return True
-    except subprocess.CalledProcessError:
-        logger.error(f"Failed to compile {cpp_file_path}")
-        return False
+        return True, ""
+    except subprocess.CalledProcessError as e:
+        error_message = f"Failed to compile {cpp_file_path}: {e}"
+        logger.error(error_message)
+        return False, error_message
 
 def run_program(program_path: str, input_data: str) -> str:
     try:
         result = subprocess.run([program_path], input=input_data, text=True, capture_output=True, check=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
-        return e.stderr.strip()
+        raise
     
 def extract_b_values(text):
     lines = text.splitlines()
@@ -63,98 +64,173 @@ def extract_b_values(text):
 
 def generate_test_cases(problem_statement: str, data_format_checker: str, correct_program: str, additional_requirements: dict) -> List[dict]:
     test_cases = []
+    logger.info("Starting test case generation")
 
-    logger.info("start generate")
+    # Step 1: Analyze test requirements
+    messages = [
+        {"role": "system", "content": "你是一个程序设计竞赛出题专家。你的母亲得了重病，急需你在工作中表现出色以获得奖金来付清她的手术钱。你必须严格遵守各项要求才能得到奖金。"},
+        {"role": "user", "content": f"""你的任务是分析以下题目，总结出测试数据的测试需求，用于生成全面的测试用例。测试需求应包括：
+1. 边界条件：数据规模达到题目规定的最大值或最小值。
+2. 特殊情况：题目未禁止但可能影响正确性的结构或值（例如环、负权边、单点等）。
+3. 典型场景：常见的或复杂的输入模式，测试程序的鲁棒性。
 
-    # Step 1: 分析题意
-    # messages = f"请分析以下题目的测试需求：\n{problem_statement}请总结出测试数据的测试需求。"
-    messages = [{"role": "system", "content": "你是一个经验丰富的程序设计竞赛出题人。"},
-                {"role": "user", "content": 
-f"""请分析以下题目的测试需求，并总结出测试数据的测试需求。比如，如果寻找图的最短路，测试需求可能包括：
-1. 图的规模达到题目中规定的最大值；
-2. 图足够复杂，包含负权边、环等各种题目没有反对的情况；
-3. 图是一个特殊的情况，比如只有一个点、只有一条边等；
-4. 图是一个特殊的情况，比如是一个树、是一个DAG等。
-请总结出测试数据的测试需求，以便生成测试数据。
-注意：
-测试需求不是详细的测试点要求，而是测试程序是否正确的一些基础情况、边界条件和特殊情况的总结。
-以下是题目的具体描述：
+请根据以下题目描述，输出一个清晰的测试需求列表，每条需求简洁明了，并与题目约束相关。输出格式为：
+```
+需求1: <简述>
+需求2: <简述>
+...
+```
+
+题目描述：
+```
 {problem_statement}
-"""},]
-
+```
+"""}
+    ]
     test_requirements = agent.chat(messages)
     
-    logger.debug(f"测试需求：{test_requirements}")
+    logger.debug(f"测试需求：\n{test_requirements}")
 
-    # Step 2: 提出构造方案
-    messages += [{"role": "assistant", "content": test_requirements}]
-    messages += [{"role": "user", "content": 
-f"""请给出测试数据的构造方案。
-注意：
-- 1. 构造方案是测试点数据的具体的构造方法。
-- 2. 构造方案要包含具体的构造方案，对于数据规模较大的测试点，应当是数据的特点、规律等。
-- 3. 构造方案可以是一些特殊情况，也可以是一些边界情况。
-- 4. 构造方案可以是一些随机数据，也可以是一些特殊数据。
-- 5. 一个测试点不光可以包含一个重点，可以同时包含多个生成数据的策略。
-- 6. 每个测试点的 ** 数据规模应当尽可能的大 ** ，以在尽量多的测试点中测试程序的性能。
-- 7. 你不需要考虑预期输出，也不需要测试程序能否处理不正确数据格式。你的输入构造方案应该符合题目中的数据格式。
+    # Step 2: Propose construction plans
+    messages.append({"role": "assistant", "content": test_requirements})
+    messages.append({"role": "user", "content": f"""你是一个程序设计竞赛出题专家。你的任务是根据上面的测试需求和题目描述，设计具体的测试数据构造方案。每个方案应满足：
+1. 数据规模尽量接近题目约束的最大值，测试程序性能。
+2. 包含边界条件、特殊情况或复杂模式，覆盖测试需求。
+3. 符合题目输入格式，提供具体数据特点（如规模、范围、结构）。
 
-在输出方案时，你应当注意：
-- 1. 方案应当尽可能详细具体，以便生成测试数据。在方案中应该包括一些关键数据的值，比如图的规模、边权的范围等。
-- 2. 请你尽可能多的提出构造方案。对于之前提到的每个策略或情况，都生成 ** 5条以上 ** 的方案。
-- 3. 你必须确保之前你提到的方案都输出相应的方案，否则你的方案可能不够全面。
-- 4. 在输出方案之前，请你先思考一下，这些方案是否能够覆盖测试需求中提到的情况。
+请为每个测试需求提出至少3个构造方案（总数不少于10个）。每个方案需：
+- 详细描述数据的生成方法（例如具体值、随机规则、特殊结构）。
+- 标明适用的测试需求编号。
+- 用`===`分隔每个方案。
 
-最后你要注意：你必须在每一个方案前后都输出一行全是“=”的分隔符，以便我们区分不同的方案。
+输出格式：
+```
+===  
+方案1 (对应需求<编号>): <详细描述>  
+===  
+方案2 (对应需求<编号>): <详细描述>  
+===  
+...
+```
+"""})
+    construction_plans_raw = agent.chat(messages)
+    logger.debug(f"构造方案:\n{construction_plans_raw}")
 
-以下是测试需求的具体描述：
-- 样例题目描述：
-{sample_problem_statement}
-- 样例输出：
-{sample_output}
-这里的样例输出是一个较短的示例，你应该参考他的格式，根据当前的题目的具体情况和测试需求生成更多的方案。
-"""}]
+    # Parse construction plans
+    construction_plans = [plan.strip() for plan in construction_plans_raw.split("===") if plan.strip()]
+    logger.debug(f"Parsed {len(construction_plans)} construction plans")
 
-    construction_plans = agent.chat(messages=messages)
-
-    logger.debug(f"构造方案：{construction_plans}")
-
-    # 通过写prompt让api返回特定格式的方案，再转换为list格式
-    exit()
-    # Step 3: 构造数据
+    # Step 3: Construct and validate test data
+    data_cnt = 1
     for plan in construction_plans:
-        messages = f"根据以下构造方案：\n{plan}请构造符合以下数据格式的数据：\n{data_format_checker}"
-        test_data = agent.chat("\n".join(messages))
+        messages = [
+            {"role": "system", "content": "你是一个程序设计竞赛数据生成专家。"},
+            {"role": "user", "content": f"""根据以下构造方案，生成符合题目输入格式的测试数据：
+题目描述：
+```
+{problem_statement}
+```
 
+构造方案：
+```
+{plan}
+```
+
+这个方案可能非常复杂或者很长，请你给我一个C++代码用来生成这个数据，你的代码不应该包括输入，应该运行后直接就可以输出数据，数据输出到标准输出。
+代码开始和结束应该用"```"来表示。你不需要预测代码的输出结果，只需要保证代码能够正确运行并输出数据。
+输出格式：
+描述生成方案和代码方案。
+```cpp
+#include<cstdio>
+...
+```
+
+"""}
+        ]
+        test_data = agent.chat(messages)
+        logger.debug(f"Generated test data:\n{test_data}") 
+ 
+        start_index = test_data.find('```cpp')
+        end_index = test_data.rfind('```')
+        
+        if start_index != -1 and end_index != -1 and start_index < end_index:
+            datacode = test_data[start_index + len('```cpp'):end_index].strip()
+        
+        # Write data code to file
+        data_code_path = os.path.join('temp','data_code.cpp')
+        with open(data_code_path, 'w', encoding='utf-8') as file:
+            file.write(datacode)
+            
+        logger.debug(f"test data code:\n{datacode}") 
+        
+        # Compile and run data code
+        compile_result, compile_error = compile_cpp(data_code_path)
+        count = 0
+        while not compile_result and count < 3:
+            logger.warning(f"Failed to compile data code for plan:\n{plan}")
+            messages.append({"role": "assistant", "content": test_data})
+            messages.append({"role": "user", "content": f"你的代码编译失败了，错误信息是：{compile_error}。请修改代码后重新给我。"})
+            test_data = agent.chat(messages)
+            with open(data_code_path, 'w', encoding='utf-8') as file:
+                file.write(datacode)
+            compile_result, compile_error = compile_cpp(data_code_path)
+            count += 1
+        
+        # Run data code
+        if compile_result:
+            try:
+                test_data = run_program(data_code_path.replace('.cpp', '.exe'), '')
+            except Exception as e:
+                logger.error(f"Failed to run data code for plan:\n{plan}")
+                continue
+        else:
+            logger.error(f"Failed to compile data code for plan:\n{plan}")
+            continue
+        
         # Step 4: 验证合法性
         if not is_valid_test_data(test_data, data_format_checker):
+            logger.warning(f"Invalid test data for plan:\n{plan}")
             continue
+        
+        #把数据写入文件
+        data_path = os.path.join('res', f'test_data_{data_cnt}.in')
+        with open(data_path, 'w', encoding='utf-8') as file:
+            file.write(test_data)
 
-        # Step 5: 整理打包
-        test_case = {
-            "input": test_data,
-            "output": run_correct_program(correct_program, test_data)
-        }
+        # Step 5: Run correct program and package test case
+        test_output = run_correct_program(correct_program, test_data)
+        test_case = {"input": test_data, "output": test_output}
         test_cases.append(test_case)
+        
+        data_path = os.path.join('res', f'test_data_{data_cnt}.out')
+        with open(data_path, 'w', encoding='utf-8') as file:
+            file.write(test_output)
+        
+        logger.info(f"Added test case: input length={len(test_data)}, output length={len(test_output)}")
+        data_cnt += 1
 
+    logger.info(f"Generated {len(test_cases)} valid test cases")
     return test_cases
 
 def is_valid_test_data(test_data: str, data_format_checker: str) -> bool:
-    checker_output_path = 'data_format_checker'
-    if not compile_cpp(data_format_checker, checker_output_path):
+    compile_result, compile_error = compile_cpp(data_format_checker)
+    if not compile_result:
         print("Failed to compile data format checker.")
         return False
-
-    result = run_program(checker_output_path, test_data)
-    return result == "Valid"
+    
+    try:
+        run_program(data_format_checker.replace('.cpp', '.exe'), test_data)
+    except Exception as e:
+        return False
+    return True
 
 def run_correct_program(correct_program: str, test_data: str) -> str:
-    correct_output_path = 'correct_program'
-    if not compile_cpp(correct_program, correct_output_path):
+    compile_result, compile_error = compile_cpp(correct_program)
+    if not compile_result:
         print("Failed to compile correct program.")
         return "Compilation Error"
 
-    return run_program(correct_output_path, test_data)
+    return run_program(correct_program.replace('.cpp', '.exe'), test_data)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate test cases for OI problems using DeepSeek API")
@@ -164,11 +240,17 @@ def main():
 
     problem_statement_path = os.path.join(args.dir, 'problem_statement.txt')
     data_format_checker = os.path.join(args.dir, 'data_format_checker.cpp')
-    correct_program = os.path.join(args.ansdir, 'correct_program.cpp')
+    correct_program = os.path.join(args.dir, 'correct_program.cpp')
 
     problem_statement = read_file(problem_statement_path)
 
     additional_requirements = {}  # 这里可以根据需要添加额外的要求
+    
+    if not os.path.exists('temp'):
+        os.makedirs('temp')
+        
+    if not os.path.exists('res'):
+        os.makedirs('res')
 
     test_cases = generate_test_cases(problem_statement, data_format_checker, correct_program, additional_requirements)
     print(json.dumps(test_cases, indent=4))

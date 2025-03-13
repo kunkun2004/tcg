@@ -1,26 +1,20 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <vector>
 
 int main() {
-    srand(time(0)); // 初始化随机数种子
-
-    int n = 5; // 生成5块地毯
-    std::cout << n << std::endl; // 输入地毯数量
-
-    // 生成每块地毯的信息
-    for (int i = 0; i < n; ++i) {
-        int a = rand() % 100; // 随机生成左下角的x坐标
-        int b = rand() % 100; // 随机生成左下角的y坐标
-        int g = 1 + rand() % 10; // 随机生成x轴方向的长度
-        int k = 1 + rand() % 10; // 随机生成y轴方向的长度
-        std::cout << a << " " << b << " " << g << " " << k << std::endl; // 输出地毯信息
-    }
-
-    // 生成查询坐标，确保它在所有地毯之外
-    int query_x = 1000; // 一个较大的x坐标值
-    int query_y = 1000; // 一个较大的y坐标值
-    std::cout << query_x << " " << query_y << std::endl; // 输出查询坐标
-
+    // 输出地毯数量
+    std::cout << 3 << std::endl;
+    
+    // 输出每张地毯的信息，这里构造编号为3的地毯在编号为1的地毯下面的情况
+    // 地毯1
+    std::cout << "0 0 3 3" << std::endl;
+    // 地毯2
+    std::cout << "1 1 3 3" << std::endl;
+    // 地毯3（在1下面）
+    std::cout << "-1 -1 5 5" << std::endl;
+    
+    // 输出查询点的坐标
+    std::cout << "2 2" << std::endl;
+    
     return 0;
 }

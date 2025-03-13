@@ -6428,3 +6428,680 @@ int main() {
 }
 2025-03-13 20:14:29.438 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=61, output length=2
 2025-03-13 20:14:29.439 | INFO     | __main__:generate_test_cases:212 - Generated 9 valid test cases
+2025-03-13 20:57:54.402 | INFO     | __main__:generate_test_cases:67 - Starting test case generation
+2025-03-13 20:58:53.799 | INFO     | __main__:generate_test_cases:67 - Starting test case generation
+2025-03-13 20:59:10.306 | INFO     | chat:chat:52 - Time taken by Zhipu API: 16.51 seconds
+2025-03-13 20:59:10.306 | DEBUG    | __main__:generate_test_cases:92 - 测试需求：
+需求1: 测试地毯数量为0的情况，即n=0，确保程序能正确输出-1。
+
+需求2: 测试地毯数量为最大值的情况，即n=10000，确保程序在大量输入下的稳定性。
+
+需求3: 测试单张地毯覆盖查询点的情况，即n=1，查询点在单张地毯内部。
+
+需求4: 测试查询点在所有地毯外部的情况，确保程序输出-1。
+
+需求5: 测试查询点位于多张地毯重叠区域时，确保程序能输出最上面的地毯编号。
+
+需求6: 测试地毯边界和顶点覆盖情况，确保边界和顶点被正确识别为覆盖。
+
+需求7: 测试地毯完全重叠的情况，确保程序能输出最上面的地毯编号。
+
+需求8: 测试地毯部分重叠的情况，确保程序正确处理重叠部分。
+
+需求9: 测试地毯长度和宽度为0的情况，确保程序能正确处理并输出-1。
+
+需求10: 测试输入坐标值达到最大限制的情况，即a, b, g, k, x, y均为100000。
+
+需求11: 测试输入坐标值为负数的情况，虽然题目未明确禁止，但需确保程序能正确处理。
+
+需求12: 测试地毯信息输入不合法的情况，如g或k为负数，确保程序能正确处理或报错。
+
+需求13: 测试查询点恰好在两张地毯边界上的情况，确保程序能正确判断覆盖的地毯。
+
+需求14: 测试地毯铺放顺序对结果影响的情况，确保程序能正确处理地毯的覆盖关系。
+2025-03-13 20:59:33.377 | INFO     | chat:chat:52 - Time taken by Zhipu API: 23.07 seconds
+2025-03-13 20:59:33.378 | DEBUG    | __main__:generate_test_cases:117 - 构造方案:
+===  
+方案1 (对应需求1): 生成一个输入文件，其中n=0，不包含任何地毯信息，查询点可以是任意合法坐标，比如(0,0)。
+
+===  
+方案2 (对应需求2): 生成一个输入文件，其中包含10000张地毯。每张地毯的左下角坐标(a, b)和长度(g, k)随机生成，但保证不超出题目规定的最大值。查询点随机生成在所有地毯覆盖范围之外。
+
+===  
+方案3 (对应需求3): 生成一个输入文件，其中n=1，查询点在地毯内部。例如，地毯左下角坐标(0,0)，长度为100000 x 100000，查询点为(50000, 50000)。
+
+===  
+方案4 (对应需求4): 生成一个输入文件，其中n的值在1到10000之间，所有地毯覆盖范围都在一个很小的区域内，而查询点随机生成在这个区域之外。
+
+===  
+方案5 (对应需求5): 生成一个输入文件，其中n=3，每张地毯都覆盖查询点(50000, 50000)，但编号为3的地毯覆盖在编号为2的地毯之上，编号为2的地毯覆盖在编号为1的地毯之上。
+
+===  
+方案6 (对应需求6): 生成一个输入文件，其中n=3，查询点(10, 10)恰好在三张地毯的边界或顶点上。每张地毯的尺寸和位置都略有不同，但都覆盖这个点。
+
+===  
+方案7 (对应需求7): 生成一个输入文件，其中n=3，编号为2和3的地毯完全重合，且覆盖编号为1的地毯。
+
+===  
+方案8 (对应需求8): 生成一个输入文件，其中n=3，每张地毯都部分重叠，查询点位于所有地毯的重叠部分。
+
+===  
+方案9 (对应需求9): 生成一个输入文件，其中n=2，第一张地毯的尺寸为(0,0,0,0)，第二张地毯的尺寸为(100000, 100000, 0, 0)，查询点为任意合法坐标。
+
+===  
+方案10 (对应需求10): 生成一个输入文件，其中n=1，地毯的左下角坐标(a, b)和长度(g, k)都设置为100000，查询点(x, y)也设置为100000。
+
+===  
+方案11 (对应需求11): 生成一个输入文件，其中n=1，地毯的左下角坐标(a, b)和长度(g, k)设置为负数，例如(-100000, -100000, -100000, -100000)，查询点也为负数。
+
+===  
+方案12 (对应需求12): 生成一个输入文件，其中n=1，地毯的左下角坐标(a, b)设置为合法值，但长度(g, k)设置为负数，如(0, 0, -1, -1)。
+
+===  
+方案13 (对应需求13): 生成一个输入文件，其中n=2，查询点(100, 100)恰好在两张地毯的边界上，每张地毯覆盖查询点的一半。
+
+===  
+方案14 (对应需求14): 生成一个输入文件，其中n=3，地毯按照编号从小到大顺序铺放，但铺放顺序会导致编号为3的地毯实际上在编号为1的地毯下面。
+2025-03-13 20:59:33.382 | DEBUG    | __main__:generate_test_cases:121 - Parsed 14 construction plans
+2025-03-13 20:59:35.169 | INFO     | chat:chat:52 - Time taken by Zhipu API: 1.79 seconds
+2025-03-13 20:59:35.170 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+
+int main() {
+    // 输出n=0的情况
+    std::cout << "0" << std::endl;
+    // 查询点坐标(0,0)
+    std::cout << "0 0" << std::endl;
+    return 0;
+}
+```
+2025-03-13 20:59:35.172 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+
+int main() {
+    // 输出n=0的情况
+    std::cout << "0" << std::endl;
+    // 查询点坐标(0,0)
+    std::cout << "0 0" << std::endl;
+    return 0;
+}
+2025-03-13 20:59:37.588 | WARNING  | __main__:generate_test_cases:192 - Invalid test data for plan:
+方案1 (对应需求1): 生成一个输入文件，其中n=0，不包含任何地毯信息，查询点可以是任意合法坐标，比如(0,0)。
+2025-03-13 20:59:44.704 | INFO     | chat:chat:52 - Time taken by Zhipu API: 7.11 seconds
+2025-03-13 20:59:44.704 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+int main() {
+    srand((unsigned)time(0)); // 初始化随机数种子
+
+    // 输出地毯数量
+    std::cout << 10000 << std::endl;
+
+    // 生成10000张地毯的数据
+    for (int i = 0; i < 10000; ++i) {
+        int a = rand() % 100001; // 生成0到100000之间的随机数
+        int b = rand() % 100001; // 生成0到100000之间的随机数
+        int g = rand() % 100001; // 生成0到100000之间的随机数
+        int k = rand() % 100001; // 生成0到100000之间的随机数
+        // 输出每张地毯的数据
+        std::cout << a << " " << b << " " << g << " " << k << std::endl;
+    }
+
+    // 生成查询点，保证在所有地毯覆盖范围之外
+    int x = 100001 + rand() % 100000; // 生成100001到200000之间的随机数
+    int y = 100001 + rand() % 100000; // 生成100001到200000之间的随机数
+    // 输出查询点
+    std::cout << x << " " << y << std::endl;
+
+    return 0;
+}
+```
+2025-03-13 20:59:44.708 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+int main() {
+    srand((unsigned)time(0)); // 初始化随机数种子
+
+    // 输出地毯数量
+    std::cout << 10000 << std::endl;
+
+    // 生成10000张地毯的数据
+    for (int i = 0; i < 10000; ++i) {
+        int a = rand() % 100001; // 生成0到100000之间的随机数
+        int b = rand() % 100001; // 生成0到100000之间的随机数
+        int g = rand() % 100001; // 生成0到100000之间的随机数
+        int k = rand() % 100001; // 生成0到100000之间的随机数
+        // 输出每张地毯的数据
+        std::cout << a << " " << b << " " << g << " " << k << std::endl;
+    }
+
+    // 生成查询点，保证在所有地毯覆盖范围之外
+    int x = 100001 + rand() % 100000; // 生成100001到200000之间的随机数
+    int y = 100001 + rand() % 100000; // 生成100001到200000之间的随机数
+    // 输出查询点
+    std::cout << x << " " << y << std::endl;
+
+    return 0;
+}
+2025-03-13 20:59:47.422 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=226620, output length=2
+2025-03-13 20:59:51.500 | INFO     | chat:chat:52 - Time taken by Zhipu API: 4.08 seconds
+2025-03-13 20:59:51.500 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+
+int main() {
+    // 输出地毯数量
+    std::cout << "1" << std::endl;
+    // 输出第一张地毯的信息，左下角坐标(0,0)，长度100000 x 100000
+    std::cout << "0 0 100000 100000" << std::endl;
+    // 输出查询点的坐标，点在地毯内部
+    std::cout << "50000 50000" << std::endl;
+    return 0;
+}
+```
+2025-03-13 20:59:51.503 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+
+int main() {
+    // 输出地毯数量
+    std::cout << "1" << std::endl;
+    // 输出第一张地毯的信息，左下角坐标(0,0)，长度100000 x 100000
+    std::cout << "0 0 100000 100000" << std::endl;
+    // 输出查询点的坐标，点在地毯内部
+    std::cout << "50000 50000" << std::endl;
+    return 0;
+}
+2025-03-13 20:59:54.126 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=31, output length=1
+2025-03-13 21:00:02.198 | INFO     | chat:chat:52 - Time taken by Zhipu API: 8.07 seconds
+2025-03-13 21:00:02.198 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+int main() {
+    srand(time(0)); // 初始化随机数种子
+    int n = rand() % 10000 + 1; // 生成1到10000之间的n
+    std::cout << n << std::endl; // 输出n的值
+
+    // 生成n张地毯的信息，所有地毯覆盖范围在一个小区域内
+    int region_size = 100; // 定义小区域的范围
+    int small_region_x = rand() % region_size; // 随机生成小区域的x坐标
+    int small_region_y = rand() % region_size; // 随机生成小区域的y坐标
+
+    for (int i = 0; i < n; ++i) {
+        // 地毯左下角的坐标
+        int a = small_region_x + rand() % region_size;
+        int b = small_region_y + rand() % region_size;
+        // 地毯的长度
+        int g = rand() % region_size + 1;
+        int k = rand() % region_size + 1;
+        std::cout << a << " " << b << " " << g << " " << k << std::endl;
+    }
+
+    // 生成查询点，确保它在小区域之外
+    int query_x = small_region_x + region_size + rand() % region_size;
+    int query_y = small_region_y + region_size + rand() % region_size;
+    std::cout << query_x << " " << query_y << std::endl;
+
+    return 0;
+}
+```
+2025-03-13 21:00:02.202 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+int main() {
+    srand(time(0)); // 初始化随机数种子
+    int n = rand() % 10000 + 1; // 生成1到10000之间的n
+    std::cout << n << std::endl; // 输出n的值
+
+    // 生成n张地毯的信息，所有地毯覆盖范围在一个小区域内
+    int region_size = 100; // 定义小区域的范围
+    int small_region_x = rand() % region_size; // 随机生成小区域的x坐标
+    int small_region_y = rand() % region_size; // 随机生成小区域的y坐标
+
+    for (int i = 0; i < n; ++i) {
+        // 地毯左下角的坐标
+        int a = small_region_x + rand() % region_size;
+        int b = small_region_y + rand() % region_size;
+        // 地毯的长度
+        int g = rand() % region_size + 1;
+        int k = rand() % region_size + 1;
+        std::cout << a << " " << b << " " << g << " " << k << std::endl;
+    }
+
+    // 生成查询点，确保它在小区域之外
+    int query_x = small_region_x + region_size + rand() % region_size;
+    int query_y = small_region_y + region_size + rand() % region_size;
+    std::cout << query_x << " " << query_y << std::endl;
+
+    return 0;
+}
+2025-03-13 21:00:04.777 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=270, output length=2
+2025-03-13 21:00:13.782 | INFO     | chat:chat:52 - Time taken by Zhipu API: 9.00 seconds
+2025-03-13 21:00:13.783 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+#include <vector>
+
+int main() {
+    // 输出地毯数量
+    std::cout << 3 << std::endl;
+
+    // 输出每张地毯的信息
+    // 地毯1
+    std::cout << "49500 49500 500 500" << std::endl;
+    // 地毯2
+    std::cout << "49501 49501 498 498" << std::endl;
+    // 地毯3
+    std::cout << "49502 49502 496 496" << std::endl;
+
+    // 输出查询点的坐标
+    std::cout << "50000 50000" << std::endl;
+
+    return 0;
+}
+```
+2025-03-13 21:00:13.786 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+#include <vector>
+
+int main() {
+    // 输出地毯数量
+    std::cout << 3 << std::endl;
+
+    // 输出每张地毯的信息
+    // 地毯1
+    std::cout << "49500 49500 500 500" << std::endl;
+    // 地毯2
+    std::cout << "49501 49501 498 498" << std::endl;
+    // 地毯3
+    std::cout << "49502 49502 496 496" << std::endl;
+
+    // 输出查询点的坐标
+    std::cout << "50000 50000" << std::endl;
+
+    return 0;
+}
+2025-03-13 21:00:16.380 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=73, output length=1
+2025-03-13 21:00:20.241 | INFO     | chat:chat:52 - Time taken by Zhipu API: 3.86 seconds
+2025-03-13 21:00:20.242 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+int main() {
+    // 输出地毯数量
+    std::cout << 3 << std::endl;
+    
+    // 输出每张地毯的信息
+    // 地毯1
+    std::cout << "0 0 10 10" << std::endl;
+    // 地毯2
+    std::cout << "1 1 9 9" << std::endl;
+    // 地毯3
+    std::cout << "2 2 8 8" << std::endl;
+    
+    // 输出查询点的坐标
+    std::cout << "10 10" << std::endl;
+    
+    return 0;
+}
+```
+2025-03-13 21:00:20.245 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+int main() {
+    // 输出地毯数量
+    std::cout << 3 << std::endl;
+    
+    // 输出每张地毯的信息
+    // 地毯1
+    std::cout << "0 0 10 10" << std::endl;
+    // 地毯2
+    std::cout << "1 1 9 9" << std::endl;
+    // 地毯3
+    std::cout << "2 2 8 8" << std::endl;
+    
+    // 输出查询点的坐标
+    std::cout << "10 10" << std::endl;
+    
+    return 0;
+}
+2025-03-13 21:00:23.108 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=33, output length=1
+2025-03-13 21:00:30.953 | INFO     | chat:chat:52 - Time taken by Zhipu API: 7.84 seconds
+2025-03-13 21:00:30.954 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    // 输出地毯数量
+    cout << 3 << endl;
+    
+    // 输出第一张地毯的信息，编号1，左下角坐标(0, 0)，长3，宽3
+    cout << "0 0 3 3" << endl;
+    
+    // 输出第二张地毯的信息，编号2，左下角坐标(1, 1)，长3，宽3
+    // 这张地毯会完全覆盖编号1的地毯
+    cout << "1 1 3 3" << endl;
+    
+    // 输出第三张地毯的信息，编号3，左下角坐标(1, 1)，长3，宽3
+    // 这张地毯会与编号2的地毯完全重合
+    cout << "1 1 3 3" << endl;
+    
+    // 输出查询点的坐标，(2, 2)
+    cout << "2 2" << endl;
+    
+    return 0;
+}
+```
+2025-03-13 21:00:30.957 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    // 输出地毯数量
+    cout << 3 << endl;
+    
+    // 输出第一张地毯的信息，编号1，左下角坐标(0, 0)，长3，宽3
+    cout << "0 0 3 3" << endl;
+    
+    // 输出第二张地毯的信息，编号2，左下角坐标(1, 1)，长3，宽3
+    // 这张地毯会完全覆盖编号1的地毯
+    cout << "1 1 3 3" << endl;
+    
+    // 输出第三张地毯的信息，编号3，左下角坐标(1, 1)，长3，宽3
+    // 这张地毯会与编号2的地毯完全重合
+    cout << "1 1 3 3" << endl;
+    
+    // 输出查询点的坐标，(2, 2)
+    cout << "2 2" << endl;
+    
+    return 0;
+}
+2025-03-13 21:00:33.508 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=29, output length=1
+2025-03-13 21:00:37.738 | INFO     | chat:chat:52 - Time taken by Zhipu API: 4.23 seconds
+2025-03-13 21:00:37.739 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    // 输出地毯数量
+    cout << 3 << endl;
+
+    // 地毯1
+    cout << "0 0 4 4" << endl;
+    // 地毯2
+    cout << "1 1 3 3" << endl;
+    // 地毯3
+    cout << "2 2 2 2" << endl;
+
+    // 查询点
+    cout << "2 2" << endl;
+
+    return 0;
+}
+```
+2025-03-13 21:00:37.742 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    // 输出地毯数量
+    cout << 3 << endl;
+
+    // 地毯1
+    cout << "0 0 4 4" << endl;
+    // 地毯2
+    cout << "1 1 3 3" << endl;
+    // 地毯3
+    cout << "2 2 2 2" << endl;
+
+    // 查询点
+    cout << "2 2" << endl;
+
+    return 0;
+}
+2025-03-13 21:00:40.307 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=29, output length=1
+2025-03-13 21:00:43.274 | INFO     | chat:chat:52 - Time taken by Zhipu API: 2.97 seconds
+2025-03-13 21:00:43.274 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+
+int main() {
+    // 输出地毯数量
+    std::cout << "2" << std::endl;
+    
+    // 输出第一张地毯的信息
+    std::cout << "0 0 0 0" << std::endl;
+    
+    // 输出第二张地毯的信息
+    std::cout << "100000 100000 0 0" << std::endl;
+    
+    // 输出查询点的坐标
+    // 这里我们可以输出任意合法坐标，比如 (1, 1)
+    std::cout << "1 1" << std::endl;
+    
+    return 0;
+}
+```
+2025-03-13 21:00:43.276 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+
+int main() {
+    // 输出地毯数量
+    std::cout << "2" << std::endl;
+    
+    // 输出第一张地毯的信息
+    std::cout << "0 0 0 0" << std::endl;
+    
+    // 输出第二张地毯的信息
+    std::cout << "100000 100000 0 0" << std::endl;
+    
+    // 输出查询点的坐标
+    // 这里我们可以输出任意合法坐标，比如 (1, 1)
+    std::cout << "1 1" << std::endl;
+    
+    return 0;
+}
+2025-03-13 21:00:45.788 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=31, output length=2
+2025-03-13 21:00:48.633 | INFO     | chat:chat:52 - Time taken by Zhipu API: 2.84 seconds
+2025-03-13 21:00:48.634 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+
+int main() {
+    // 输出地毯数量 n
+    std::cout << "1" << std::endl;
+    
+    // 输出第一张地毯的信息，左下角坐标(a, b)和长度(g, k)
+    std::cout << "100000 100000 100000 100000" << std::endl;
+    
+    // 输出查询点的坐标(x, y)
+    std::cout << "100000 100000" << std::endl;
+    
+    return 0;
+}
+```
+2025-03-13 21:00:48.636 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+
+int main() {
+    // 输出地毯数量 n
+    std::cout << "1" << std::endl;
+    
+    // 输出第一张地毯的信息，左下角坐标(a, b)和长度(g, k)
+    std::cout << "100000 100000 100000 100000" << std::endl;
+    
+    // 输出查询点的坐标(x, y)
+    std::cout << "100000 100000" << std::endl;
+    
+    return 0;
+}
+2025-03-13 21:00:51.171 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=43, output length=1
+2025-03-13 21:00:53.678 | INFO     | chat:chat:52 - Time taken by Zhipu API: 2.51 seconds
+2025-03-13 21:00:53.679 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+
+int main() {
+    // 输出地毯数量
+    std::cout << "1" << std::endl;
+    // 输出单张地毯的信息，左下角坐标和长度均为负数
+    std::cout << "-100000 -100000 -100000 -100000" << std::endl;
+    // 输出查询点的坐标，也为负数
+    std::cout << "-100000 -100000" << std::endl;
+    return 0;
+}
+```
+2025-03-13 21:00:53.681 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+
+int main() {
+    // 输出地毯数量
+    std::cout << "1" << std::endl;
+    // 输出单张地毯的信息，左下角坐标和长度均为负数
+    std::cout << "-100000 -100000 -100000 -100000" << std::endl;
+    // 输出查询点的坐标，也为负数
+    std::cout << "-100000 -100000" << std::endl;
+    return 0;
+}
+2025-03-13 21:00:56.240 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=49, output length=2
+2025-03-13 21:00:59.506 | INFO     | chat:chat:52 - Time taken by Zhipu API: 3.27 seconds
+2025-03-13 21:00:59.506 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+
+int main() {
+    // 输出地毯数量 n = 1
+    std::cout << "1" << std::endl;
+    
+    // 输出地毯信息，左下角坐标(a, b)设置为合法值(0, 0)，长度(g, k)设置为负数(-1, -1)
+    std::cout << "0 0 -1 -1" << std::endl;
+    
+    // 输出查询点的坐标，这里设置为任意合法值，例如(1, 1)
+    std::cout << "1 1" << std::endl;
+    
+    return 0;
+}
+```
+2025-03-13 21:00:59.508 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+
+int main() {
+    // 输出地毯数量 n = 1
+    std::cout << "1" << std::endl;
+    
+    // 输出地毯信息，左下角坐标(a, b)设置为合法值(0, 0)，长度(g, k)设置为负数(-1, -1)
+    std::cout << "0 0 -1 -1" << std::endl;
+    
+    // 输出查询点的坐标，这里设置为任意合法值，例如(1, 1)
+    std::cout << "1 1" << std::endl;
+    
+    return 0;
+}
+2025-03-13 21:01:02.072 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=15, output length=2
+2025-03-13 21:01:06.292 | INFO     | chat:chat:52 - Time taken by Zhipu API: 4.22 seconds
+2025-03-13 21:01:06.293 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+#include <vector>
+
+int main() {
+    int n = 2;
+    std::cout << n << std::endl;
+
+    // 地毯1，覆盖从(0,0)到(50,50)的区域
+    std::cout << "0 0 50 50" << std::endl;
+    // 地毯2，覆盖从(50,50)到(100,100)的区域
+    std::cout << "50 50 50 50" << std::endl;
+
+    // 查询点(100, 100)，恰好在两张地毯的边界上
+    std::cout << "100 100" << std::endl;
+
+    return 0;
+}
+```
+2025-03-13 21:01:06.296 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+#include <vector>
+
+int main() {
+    int n = 2;
+    std::cout << n << std::endl;
+
+    // 地毯1，覆盖从(0,0)到(50,50)的区域
+    std::cout << "0 0 50 50" << std::endl;
+    // 地毯2，覆盖从(50,50)到(100,100)的区域
+    std::cout << "50 50 50 50" << std::endl;
+
+    // 查询点(100, 100)，恰好在两张地毯的边界上
+    std::cout << "100 100" << std::endl;
+
+    return 0;
+}
+2025-03-13 21:01:08.859 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=31, output length=1
+2025-03-13 21:01:12.883 | INFO     | chat:chat:52 - Time taken by Zhipu API: 4.02 seconds
+2025-03-13 21:01:12.884 | DEBUG    | __main__:generate_test_cases:151 - Generated test data:
+```cpp
+#include <iostream>
+#include <vector>
+
+int main() {
+    // 输出地毯数量
+    std::cout << 3 << std::endl;
+    
+    // 输出每张地毯的信息，这里构造编号为3的地毯在编号为1的地毯下面的情况
+    // 地毯1
+    std::cout << "0 0 3 3" << std::endl;
+    // 地毯2
+    std::cout << "1 1 3 3" << std::endl;
+    // 地毯3（在1下面）
+    std::cout << "-1 -1 5 5" << std::endl;
+    
+    // 输出查询点的坐标
+    std::cout << "2 2" << std::endl;
+    
+    return 0;
+}
+```
+2025-03-13 21:01:12.887 | DEBUG    | __main__:generate_test_cases:164 - test data code:
+#include <iostream>
+#include <vector>
+
+int main() {
+    // 输出地毯数量
+    std::cout << 3 << std::endl;
+    
+    // 输出每张地毯的信息，这里构造编号为3的地毯在编号为1的地毯下面的情况
+    // 地毯1
+    std::cout << "0 0 3 3" << std::endl;
+    // 地毯2
+    std::cout << "1 1 3 3" << std::endl;
+    // 地毯3（在1下面）
+    std::cout << "-1 -1 5 5" << std::endl;
+    
+    // 输出查询点的坐标
+    std::cout << "2 2" << std::endl;
+    
+    return 0;
+}
+2025-03-13 21:01:15.467 | INFO     | __main__:generate_test_cases:209 - Added test case: input length=31, output length=1
+2025-03-13 21:01:15.467 | INFO     | __main__:generate_test_cases:212 - Generated 13 valid test cases

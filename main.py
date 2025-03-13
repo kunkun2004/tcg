@@ -62,7 +62,7 @@ def extract_b_values(text):
     return b_values
 
 
-def generate_test_cases(problem_statement: str, data_format_checker: str, correct_program: str, additional_requirements: dict) -> List[dict]:
+def generate_test_cases(problem_statement: str, data_format_checker: str, correct_program: str, result_path: str, additional_requirements: dict) -> List[dict]:
     test_cases = []
     logger.info("Starting test case generation")
 
@@ -193,7 +193,7 @@ def generate_test_cases(problem_statement: str, data_format_checker: str, correc
             continue
         
         #把数据写入文件
-        data_path = os.path.join('res', f'test_data_{data_cnt}.in')
+        data_path = os.path.join(result_path, f'test_data_{data_cnt}.in')
         with open(data_path, 'w', encoding='utf-8') as file:
             file.write(test_data)
 
@@ -202,7 +202,7 @@ def generate_test_cases(problem_statement: str, data_format_checker: str, correc
         test_case = {"input": test_data, "output": test_output}
         test_cases.append(test_case)
         
-        data_path = os.path.join('res', f'test_data_{data_cnt}.out')
+        data_path = os.path.join(result_path, f'test_data_{data_cnt}.out')
         with open(data_path, 'w', encoding='utf-8') as file:
             file.write(test_output)
         
@@ -235,7 +235,7 @@ def run_correct_program(correct_program: str, test_data: str) -> str:
 def main():
     parser = argparse.ArgumentParser(description="Generate test cases for OI problems using DeepSeek API")
     parser.add_argument('--dir', type=str, default='desc', help='Problem description directory path to use')
-    parser.add_argument('--ansdir', type=str, default='answer', help='Answer directory path to use')
+    parser.add_argument('--resdir', type=str, default='answer', help='Answer directory path to use')
     args = parser.parse_args()
 
     problem_statement_path = os.path.join(args.dir, 'problem_statement.txt')
@@ -248,12 +248,15 @@ def main():
     
     if not os.path.exists('temp'):
         os.makedirs('temp')
-        
-    if not os.path.exists('res'):
-        os.makedirs('res')
+    
+    result_path = args.resdir
+    if not os.path.exists(result_path):
+        os.makedirs(result_path)
 
-    test_cases = generate_test_cases(problem_statement, data_format_checker, correct_program, additional_requirements)
+    test_cases = generate_test_cases(problem_statement, data_format_checker, correct_program, result_path, additional_requirements)
     print(json.dumps(test_cases, indent=4))
 
 if __name__ == "__main__":
     main()
+    
+# python main.py --dir desc --resdir answer

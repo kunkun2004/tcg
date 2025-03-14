@@ -26,11 +26,11 @@ def read_file(file_path: str) -> str:
 def compile_cpp(cpp_file_path: str):
     try:
         output_file_path = cpp_file_path.replace('.cpp', '.exe')
-        subprocess.run(['g++', cpp_file_path, '-o', output_file_path, '-std=gnu++11'], check=True)
+        subprocess.run(['g++', cpp_file_path, '-o', output_file_path, '-std=gnu++11'], check=True, stderr=subprocess.PIPE)
         return True, ""
     except subprocess.CalledProcessError as e:
-        error_message = f"Failed to compile {cpp_file_path}: {e}"
-        logger.error(error_message)
+        error_message = f"Failed to compile {cpp_file_path}: {e.stderr.decode('gbk')}"
+        logger.warning(error_message)
         return False, error_message
 
 def run_program(program_path: str, input_data: str) -> str:
@@ -103,14 +103,12 @@ def generate_test_cases(problem_statement: str, data_format_checker: str, correc
 - 用`===`分隔每个方案。
 
 输出格式：
-```
 ===  
 方案1 (对应需求<编号>): <详细描述>  
 ===  
 方案2 (对应需求<编号>): <详细描述>  
 ===  
 ...
-```
 """})
     construction_plans_raw = agent.chat(messages)
     logger.debug(f"构造方案:\n{construction_plans_raw}")
@@ -180,15 +178,15 @@ def generate_test_cases(problem_statement: str, data_format_checker: str, correc
             try:
                 test_data = run_program(data_code_path.replace('.cpp', '.exe'), '')
             except Exception as e:
-                logger.error(f"Failed to run data code for plan:\n{plan}")
+                logger.warning(f"Failed to run data code for plan:\n{plan}")
                 continue
         else:
-            logger.error(f"Failed to compile data code for plan:\n{plan}")
+            logger.warning(f"Failed to compile data code for plan:\n{plan}")
             continue
         
         # Step 4: 验证合法性
         if not is_valid_test_data(test_data, data_format_checker):
-            logger.warning(f"Invalid test data for plan:\n{plan}")
+            logger.warning(f"Invalid test plan:\n{plan}")
             continue
         
         #把数据写入文件
@@ -197,7 +195,11 @@ def generate_test_cases(problem_statement: str, data_format_checker: str, correc
             file.write(test_data)
 
         # Step 5: Run correct program and package test case
-        test_output = run_correct_program(correct_program, test_data)
+        try:
+            test_output = run_correct_program(correct_program, test_data)
+        except Exception as e:
+            logger.warning(f"Failed to run correct program for plan:\n{plan}")
+            continue
         test_case = {"input": test_data, "output": test_output}
         test_cases.append(test_case)
         
@@ -212,11 +214,6 @@ def generate_test_cases(problem_statement: str, data_format_checker: str, correc
     return test_cases
 
 def is_valid_test_data(test_data: str, data_format_checker: str) -> bool:
-    compile_result, compile_error = compile_cpp(data_format_checker)
-    if not compile_result:
-        print("Failed to compile data format checker.")
-        return False
-    
     try:
         run_program(data_format_checker.replace('.cpp', '.exe'), test_data)
     except Exception as e:
@@ -224,15 +221,14 @@ def is_valid_test_data(test_data: str, data_format_checker: str) -> bool:
     return True
 
 def run_correct_program(correct_program: str, test_data: str) -> str:
-    compile_result, compile_error = compile_cpp(correct_program)
-    if not compile_result:
-        print("Failed to compile correct program.")
-        return "Compilation Error"
-
-    return run_program(correct_program.replace('.cpp', '.exe'), test_data)
+    try:
+        return run_program(correct_program.replace('.cpp', '.exe'), test_data)
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Failed to run correct program: {e}")
+        raise
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate test cases for OI problems using DeepSeek API")
+    parser = argparse.ArgumentParser(description="Generate test cases for OI problems using AI API")
     parser.add_argument('--dir', type=str, default='desc', help='Problem description directory path to use')
     parser.add_argument('--resdir', type=str, default='answer', help='Answer directory path to use')
     args = parser.parse_args()
@@ -245,6 +241,16 @@ def main():
 
     additional_requirements = {}  # 这里可以根据需要添加额外的要求
     
+    compile_result, compile_error = compile_cpp(data_format_checker)
+    if not compile_result:
+        logger.error("Failed to compile data format checker.")
+        return
+        
+    compile_result, compile_error = compile_cpp(correct_program)
+    if not compile_result:
+        logger.error("Failed to compile correct program.")
+        return
+    
     if not os.path.exists('temp'):
         os.makedirs('temp')
     
@@ -254,6 +260,7 @@ def main():
 
     test_cases = generate_test_cases(problem_statement, data_format_checker, correct_program, result_path, additional_requirements)
     print(json.dumps(test_cases, indent=4))
+    logger.info("total token used: " + str(agent.tokenused))
 
 if __name__ == "__main__":
     main()

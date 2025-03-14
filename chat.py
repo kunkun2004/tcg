@@ -17,6 +17,7 @@ class Deepseek(Agent):
             api_key=api_key,
             base_url="https://api.deepseek.com",
         )
+        self.tokenused = 0
     
     def chat(self, messages: List[str]) -> str:
         start_time = time.time()
@@ -30,7 +31,8 @@ class Deepseek(Agent):
             )
             end_time = time.time()
             elapsed_time = end_time - start_time
-            logger.info(f"Time taken by api: {elapsed_time:.2f} seconds")
+            logger.info(f"Time taken by Deepseek API: {elapsed_time:.2f} seconds")
+            self.tokenused += response.usage.total_tokens
             return response.choices[0].message.content
         except Exception as e:
             logger.error(f"API call failed: {str(e)}")
@@ -39,6 +41,7 @@ class Deepseek(Agent):
 class Zhipu(Agent):
     def __init__(self, api_key):
         self.client = ZhipuAI(api_key=api_key)
+        self.tokenused = 0
     
     def chat(self, messages: List[str]) -> str:
         start_time = time.time()
@@ -50,6 +53,7 @@ class Zhipu(Agent):
             end_time = time.time()
             elapsed_time = end_time - start_time
             logger.info(f"Time taken by Zhipu API: {elapsed_time:.2f} seconds")
+            self.tokenused += response.usage.total_tokens
             return response.choices[0].message.content
         except Exception as e:
             logger.error(f"Zhipu API call failed: {str(e)}")
